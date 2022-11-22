@@ -44,9 +44,13 @@ jobs:
           /usr/bin/gpg --batch --verify /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip.asc /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip && \
           /usr/bin/unzip /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip -d /opt && \
           /bin/mkdir /opt/dependency-check/data && \
-          /bin/chmod g+w -R /opt/dependency-check/data && \
-          /bin/ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh && \
-          /bin/rm -v /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip.asc /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip
+          /bin/chmod g+w -R /opt/dependency-check/data
+      - name: Cache OWASP Dep Check Vuln Database
+        uses: actions/cache@v1
+        with:
+          path: /opt/dependency-check/data
+          key: ${{ runner.os }}-depcheckdata
+          restore-keys: ${{ runner.os }}-depcheckdata
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: pwsh
@@ -67,7 +71,7 @@ jobs:
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
-          /usr/bin/dependency-check.sh -f JSON -f HTML -s . -o . --disableAssembly
+          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -s . -o . --disableAssembly
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       - name: SonarQube Quality Gate Check
         # You may pin to the exact commit or the version.
