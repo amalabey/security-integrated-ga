@@ -64,6 +64,8 @@ jobs:
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
+          /d:sonar.verbose=true \
+          /d:sonar.scm.exclusions.disabled=true \
           /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
           /d:sonar.sarif.path=horusec-results.sarif \
           /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}/dependency-check-report.json" \
