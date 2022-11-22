@@ -65,8 +65,8 @@ jobs:
           ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
           /d:sonar.sarif.path=horusec-results.sarif \
-          /d:sonar.dependencyCheck.jsonReportPath="dependency-check-report.json" \
-          /d:sonar.dependencyCheck.htmlReportPath="dependency-check-report.html" \
+          /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}\dependency-check-report.json" \
+          /d:sonar.dependencyCheck.htmlReportPath="${GITHUB_WORKSPACE}\dependency-check-report.html" \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
