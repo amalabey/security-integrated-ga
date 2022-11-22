@@ -53,14 +53,12 @@ jobs:
           dotnet build
           horusec start -D -p . -P . -o="sarif" -O="horusec-results.sarif" --log-level=debug
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-      # Check the Quality Gate status.
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        # Force to fail step after specific time.
-        timeout-minutes: 5
-        env:
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+      - name: SonarQube Quality Gate Check
+        # You may pin to the exact commit or the version.
+        # uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
+        uses: SonarSource/sonarqube-quality-gate-action@v1.0.0
+        with:
+          # Location of the scanner metadata report file
+          scanMetadataReportFile: .scannerwork/report-task.txt
       - name: "Show SonarQube Quality Gate Status"
         run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
