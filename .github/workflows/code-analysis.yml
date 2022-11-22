@@ -73,6 +73,14 @@ jobs:
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
           /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -s . -o . --disableAssembly
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: Upload Code Scanning Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: codescanning-reports
+          path: |
+            *.sarif
+            dependency-check-report.json
+            dependency-check-report.html
       - name: SonarQube Quality Gate Check
         # You may pin to the exact commit or the version.
         # uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
