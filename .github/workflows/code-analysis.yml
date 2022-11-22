@@ -45,6 +45,12 @@ jobs:
           /usr/bin/unzip /opt/dependency-check-${DEPENDENCY_CHECK}-release.zip -d /opt && \
           /bin/mkdir /opt/dependency-check/data && \
           /bin/chmod g+w -R /opt/dependency-check/data
+      - name: Cache OWASP Dep Check Vuln Database
+        uses: actions/cache@v1
+        with:
+          path: /opt/dependency-check/data
+          key: ${{ runner.os }}-depcheckdata
+          restore-keys: ${{ runner.os }}-depcheckdata
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: pwsh
