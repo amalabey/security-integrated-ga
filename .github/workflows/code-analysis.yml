@@ -64,7 +64,7 @@ jobs:
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
-          /d:sonar.sources=src/*.csproj \
+          /d:sonar.sources=src/azure-function-example-csharp.csproj \
           /d:sonar.verbose=true \
           /d:sonar.scm.exclusions.disabled=true \
           /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
