@@ -62,20 +62,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         shell: bash
         run: |
+          PROJECT_FILES=$(find ${GITHUB_WORKSPACE} -type f -name "*.csproj" | paste -sd "," -)
           ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
-          /d:sonar.sources=src/azure-function-example-csharp.csproj \
           /d:sonar.verbose=true \
           /d:sonar.scm.exclusions.disabled=true \
           /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
-          /d:sonar.sarif.path=horusec-results.sarif \
-          /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}/dependency-check-report.json" \
+          /d:sonar.sources=$PROJECT_FILES \
+          /d:sonar.exclusions="node_modules,**/*.dll,**/*.log,**/*.sarif,**/*.html,bin,obj,.sonarqube" \
+          /d:sonar.sarif.path=horusec-results.sarif,${GITHUB_WORKSPACE}/dependency-check-report.sarif \
           /d:sonar.dependencyCheck.htmlReportPath="${GITHUB_WORKSPACE}/dependency-check-report.html" \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
-          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -s . -o . --disableAssembly
+          /opt/dependency-check/bin/dependency-check.sh -f SARIF -f HTML -s . -o . --disableAssembly
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       - name: Upload Code Scanning Reports
         uses: actions/upload-artifact@v3
