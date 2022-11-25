@@ -60,7 +60,7 @@ jobs:
       - name: Extract Dep Check Results
         if: always()
         run: |
-          VULNERABILITIES=$(jq '.runs[0].results[].message.text' ${GITHUB_WORKSPACE}/dependency-check-report.sarif)
+          VULNERABILITIES=$(cat ${GITHUB_WORKSPACE}/dependency-check-report.sarif | jq '.runs[0].results[].message.text')
           if [ -z "$VULNERABILITIES" ]
           then
             echo "No vulnerabilities found in the dependencies"
