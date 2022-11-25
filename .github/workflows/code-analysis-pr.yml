@@ -1,8 +1,5 @@
-name: Code Analysis
+name: Code Analysis (PR)
 on:
-  push:
-    branches:
-      - main # or the name of your main branch
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
@@ -34,6 +31,12 @@ jobs:
         shell: bash
         run: |
           curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/main/deployments/scripts/install.sh | bash -s latest
+      - name: Install SonarQube scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          New-Item -Path .sonar/scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
       - name: Install OWASP Dependency Check
         shell: bash
         run: |
@@ -51,40 +54,50 @@ jobs:
           path: /opt/dependency-check/data
           key: ${{ runner.os }}-depcheckdata
           restore-keys: ${{ runner.os }}-depcheckdata
-      - name: Install SonarQube scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: pwsh
+      - name: Run OWASP Dep Check
         run: |
-          New-Item -Path .sonar/scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -f SARIF -s ${GITHUB_WORKSPACE}/src -o ${GITHUB_WORKSPACE} --disableAssembly --failOnCVSS 4 --enableRetired
+      - name: Extract Dep Check Results
+        id: extract_depcheck_results
+        if: always()
+        run: |
+          VULNERABILITIES=$(cat ${GITHUB_WORKSPACE}/dependency-check-report.sarif | jq '.runs[0].results[].message.text')
+          echo "vulnerabilities=$(echo $VULNERABILITIES)" >> $GITHUB_OUTPUT
+          echo "DEPCHECKVULNS=$VULNERABILITIES" >> "$GITHUB_ENV"
+      - name: Post Dep Check Results to PR
+        if: always() && steps.extract_depcheck_results.outputs.vulnerabilities
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: |
+            # Vulnerabilities found in the dependencies  
+            ${{ steps.extract_depcheck_results.outputs.vulnerabilities }}
+          comment_includes: 'dependencies'
+          reactions: eyes
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
-          /d:sonar.sarif.path=horusec-results.sarif \
+          /d:sonar.verbose=true \
+          /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
           /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}/dependency-check-report.json" \
           /d:sonar.dependencyCheck.htmlReportPath="${GITHUB_WORKSPACE}/dependency-check-report.html" \
+          /d:sonar.sarif.path=horusec-results.sarif \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
-          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -s . -o . --disableAssembly
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-      - name: Upload Code Scanning Reports
-        uses: actions/upload-artifact@v3
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@master
         with:
-          name: codescanning-reports
-          path: |
-            *.sarif
-            dependency-check-report.json
-            dependency-check-report.html
+           name: Depcheck report
+           path: ${{github.workspace}}/dependency-check-report.*
       - name: SonarQube Quality Gate Check
-        # You may pin to the exact commit or the version.
-        # uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
-        uses: SonarSource/sonarqube-quality-gate-action@v1.0.0
+        uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
         env:
          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
