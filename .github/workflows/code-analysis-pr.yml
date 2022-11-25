@@ -69,7 +69,7 @@ jobs:
         run: |
           echo -->${{ steps.extract_depcheck_results.outputs.vulnerabilities }}<--
       - name: Post Dep Check Results to PR
-        if: always() && steps.extract_depcheck_results.outputs.vulnerabilities != ''
+        if: always() && steps.extract_depcheck_results.outputs.vulnerabilities
         uses: thollander/actions-comment-pull-request@v1
         with:
           message: |
@@ -78,7 +78,6 @@ jobs:
           comment_includes: 'dependencies'
           reactions: eyes
       - name: Build and analyze
-        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
