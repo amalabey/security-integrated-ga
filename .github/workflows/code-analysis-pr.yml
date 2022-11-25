@@ -65,6 +65,7 @@ jobs:
           args: >
             --failOnCVSS 7
             --enableRetired
+            --disableAssembly 
       - name: Upload Test results
         if: always()
         uses: actions/upload-artifact@master
