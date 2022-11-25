@@ -69,7 +69,8 @@ jobs:
             echo "DEPCHECKVULNSFOUND=true" >> "$GITHUB_ENV"
             echo "DEPCHECKVULNS=$VULNERABILITIES" >> "$GITHUB_ENV"
           fi
-          echo $GITHUB_ENV
+          echo $DEPCHECKVULNSFOUND
+          echo $DEPCHECKVULNS
       - name: Post Dep Check Results to PR
         if: env.DEPCHECKVULNS == 'true'
         uses: thollander/actions-comment-pull-request@v1
