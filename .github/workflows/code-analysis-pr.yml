@@ -58,10 +58,7 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
         with:
-          project: 'test'
-          path: '.'
-          format: 'HTML'
-          out: 'reports' # this is the default, no need to specify unless you wish to override it
+          path: 'src'
           args: >
             --failOnCVSS 7
             --enableRetired
