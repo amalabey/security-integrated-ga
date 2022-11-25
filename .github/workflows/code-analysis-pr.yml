@@ -59,6 +59,9 @@ jobs:
           JAVA_HOME: /opt/jdk # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
         with:
           path: 'src'
+          project: 'azure-function-example-csharp'
+          format: 'HTML'
+          out: 'reports'
           args: >
             --failOnCVSS 7
             --enableRetired
