@@ -65,6 +65,7 @@ jobs:
           echo "vulnerabilities=$(echo $VULNERABILITIES)" >> $GITHUB_OUTPUT
           echo "DEPCHECKVULNS=$VULNERABILITIES" >> "$GITHUB_ENV"
       - name: test
+        if: always()
         run: |
           echo -->${{ steps.extract_depcheck_results.outputs.vulnerabilities }}<--
       - name: Post Dep Check Results to PR
@@ -74,7 +75,8 @@ jobs:
           message: |
             # Vulnerabilities found in the dependencies  
             ${{ steps.extract_depcheck_results.outputs.vulnerabilities }}
-          reactions: eyes, rocket
+          comment_includes: 'dependencies'
+          reactions: eyes
       - name: Build and analyze
         if: always()
         env:
