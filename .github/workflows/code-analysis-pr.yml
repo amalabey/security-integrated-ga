@@ -58,7 +58,7 @@ jobs:
         env:
           JAVA_HOME: /opt/jdk # actions/setup-java@v1 changes JAVA_HOME so it needs to be reset to match the depcheck image
         with:
-          path: './src'
+          path: '.'
           project: 'security-integrated-ga'
           format: 'HTML'
           out: 'reports'
@@ -66,6 +66,7 @@ jobs:
             --failOnCVSS 7
             --enableRetired
             --disableAssembly 
+            --exclude '.sonar'
       - name: Upload Test results
         if: always()
         uses: actions/upload-artifact@master
