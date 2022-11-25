@@ -64,12 +64,8 @@ jobs:
           VULNERABILITIES=$(cat ${GITHUB_WORKSPACE}/dependency-check-report.sarif | jq '.runs[0].results[].message.text')
           echo "vulnerabilities=$(echo $VULNERABILITIES)" >> $GITHUB_OUTPUT
           echo "DEPCHECKVULNS=$VULNERABILITIES" >> "$GITHUB_ENV"
-      - name: Test
-        if: always()
-        run: |
-          echo ${{ steps.extract_depcheck_results.outputs.vulnerabilities }}
       - name: Post Dep Check Results to PR
-        if: always()
+        if: always() && ${{ steps.extract_depcheck_results.outputs.vulnerabilities != '' }}
         uses: thollander/actions-comment-pull-request@v1
         with:
           message: |
