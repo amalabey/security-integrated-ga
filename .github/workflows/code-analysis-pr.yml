@@ -56,7 +56,7 @@ jobs:
           restore-keys: ${{ runner.os }}-depcheckdata
       - name: Run OWASP Dep Check
         run: |
-          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -f SARIF -s ${GITHUB_WORKSPACE}/src -o ${GITHUB_WORKSPACE} --disableAssembly --failOnCVSS 7 --enableRetired
+          /opt/dependency-check/bin/dependency-check.sh -f JSON -f HTML -f SARIF -s ${GITHUB_WORKSPACE}/src -o ${GITHUB_WORKSPACE} --disableAssembly --failOnCVSS 4 --enableRetired
       - name: Build and analyze
         if: always()
         env:
