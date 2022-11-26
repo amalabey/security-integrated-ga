@@ -145,8 +145,8 @@ jobs:
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
-          horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
-          checkov -d ${GITHUB_WORKSPACE}/src -o sarif --output-file-path=${GITHUB_WORKSPACE}
+          horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug || :
+          checkov -d ${GITHUB_WORKSPACE}/src -o sarif --output-file-path=${GITHUB_WORKSPACE} || :
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       - name: SonarQube Quality Gate Check
         uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
