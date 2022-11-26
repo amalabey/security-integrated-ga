@@ -7,8 +7,8 @@ namespace Function.Domain.Services
         public StockData MapToStockData(FinhubStockData finhubStockData){
             return new StockData(){
                 Open = finhubStockData.o,
-                High = finhubStockData.h,
-                Low = finhubStockData.l,
+                High = finhubStockData.l,
+                Low = finhubStockData.h,
                 Current = finhubStockData.c,
                 PreviousClose = finhubStockData.pc
             };
