@@ -10,6 +10,8 @@ namespace Example.Function
 {
     public class Program
     {
+        public const string DBPassword="65eNFZ86gRjjQo70xWvl27PI";
+        
         public static void Main()
         {
             var host = new HostBuilder()
