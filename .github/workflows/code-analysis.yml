@@ -1,4 +1,4 @@
-name: Code Analysis (PR)
+name: Code Analysis
 on:
   push:
     branches:
