@@ -23,7 +23,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@master
         with:
-           name: GitLeaks report
+           name: GitLeaks Report
            path: ${{github.workspace}}/gitleaks-results.*
   dependencyscan:
     name: Dependency Scan
@@ -74,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@master
         with:
-           name: Depcheck report
+           name: Depcheck Report
            path: ${{github.workspace}}/dependency-check-report.*
   codescan:
     name: Code Scan
@@ -112,6 +112,14 @@ jobs:
         run: |
           New-Item -Path .sonar/scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+      - name: Download Secret Scanning Results
+        uses: actions/download-artifact@v3
+        with:
+          name: GitLeaks Report
+      - name: Download DepCheck Results
+        uses: actions/download-artifact@v3
+        with:
+          name: Depcheck Report
       - name: Build and analyze
         if: always()
         env:
