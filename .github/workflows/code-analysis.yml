@@ -111,6 +111,10 @@ jobs:
         shell: bash
         run: |
           curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/main/deployments/scripts/install.sh | bash -s latest
+      - name: Install Checkov Scanner
+        shell: bash
+        run: |
+          pip3 install checkov
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: pwsh
@@ -137,11 +141,12 @@ jobs:
           /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
           /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}/dependency-check-report.json" \
           /d:sonar.dependencyCheck.htmlReportPath="${GITHUB_WORKSPACE}/dependency-check-report.html" \
-          /d:sonar.sarif.path=horusec-results.sarif,gitleaks-results.sarif \
+          /d:sonar.sarif.path=horusec-results.sarif,gitleaks-results.sarif,results_sarif.sarif \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug
+          checkov -d ${GITHUB_WORKSPACE}/src -o sarif --output-file-path=${GITHUB_WORKSPACE}
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       - name: SonarQube Quality Gate Check
         uses: SonarSource/sonarqube-quality-gate-action@15767f0e4eb489cfdd989dc717fa78c038d0de8a
