@@ -121,6 +121,9 @@ jobs:
         run: |
           New-Item -Path .sonar/scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+      - name: Install dotnet-coverage tool
+        run: |
+          dotnet tool install --global dotnet-coverage
       - name: Download Secret Scanning Results
         uses: actions/download-artifact@v3
         with:
@@ -139,12 +142,14 @@ jobs:
           /k:"amalabey_security-integrated-ga_AYSdzyD_4R0R_Ejl5wBt" \
           /d:sonar.verbose=true \
           /d:sonar.projectBaseDir=${GITHUB_WORKSPACE} \
+          /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
           /d:sonar.dependencyCheck.jsonReportPath="${GITHUB_WORKSPACE}/dependency-check-report.json" \
           /d:sonar.dependencyCheck.htmlReportPath="${GITHUB_WORKSPACE}/dependency-check-report.html" \
           /d:sonar.sarif.path=horusec-results.sarif,gitleaks-results.sarif,${GITHUB_WORKSPACE}/src/results_sarif.sarif \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
+          dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
           horusec start -D -p . -P . --config-file-path=horusec-config.json -o="sarif" -O="horusec-results.sarif" --log-level=debug || :
           checkov -d ${GITHUB_WORKSPACE}/src -o sarif --output-file-path=${GITHUB_WORKSPACE}/src || :
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
