@@ -13,7 +13,7 @@ namespace Function.Domain.Services.HttpClients
 
         public FinhubHttpClient(HttpClient client){
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("finhub_api_baseUrl"));
-            client.DefaultRequestHeaders.Add("X-Finnhub-Token", Environment.GetEnvironmentVariable("finhub_api_token"));
+            client.DefaultRequestHeaders.Add("X-Finnhub-Token", "cd92pniab3i7j6r3keircd92pniad3i7j6r2kej7");
 
             _client = client;
         }
